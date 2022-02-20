@@ -25,3 +25,10 @@ resource "azuread_user" "dc_admin" {
   display_name        = "AADDS DC Administrator"
   password            = random_password.aadds_admin.result
 }
+
+# Resource Group
+
+resource "azurerm_resource_group" "aadds" {
+  name     = "aadds-rg"
+  location = var.location
+}

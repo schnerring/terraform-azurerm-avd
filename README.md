@@ -13,6 +13,6 @@ Terraform sample containing Azure Active Directory Domain Services (AADDS) and A
 
 ## Variables
 
-| Name           | Example               |
-| -------------- | --------------------- |
-| `dc_admin_upn` | dc-admin@$example.com |
+| Name           | Example              |
+| -------------- | -------------------- |
+| `dc_admin_upn` | dc-admin@example.com |
