@@ -8,3 +8,9 @@
 ## Authenticate to Azure
 
 [Terraform supports different methods for authenticating to Azure.](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs#authenticating-to-azure)
+
+## Variables
+
+| Name           | Example               |
+| -------------- | --------------------- |
+| `dc_admin_upn` | dc-admin@$example.com |
