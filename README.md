@@ -16,3 +16,4 @@ Terraform sample containing Azure Active Directory Domain Services (AADDS) and A
 | Name           | Example              |
 | -------------- | -------------------- |
 | `dc_admin_upn` | dc-admin@example.com |
+| `location`     | Switzerland North    |
