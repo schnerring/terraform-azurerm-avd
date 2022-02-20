@@ -3,6 +3,8 @@ resource "azuread_service_principal" "aadds" {
   application_id = var.domain_controller_services_id
 }
 
+# Microsoft.AAD Provider Registration
+
 resource "azurerm_resource_provider_registration" "aadds" {
   name = "Microsoft.AAD"
 }
@@ -57,6 +59,8 @@ resource "azurerm_network_security_group" "aadds" {
   location            = azurerm_resource_group.aadds.location
   resource_group_name = azurerm_resource_group.aadds.name
 
+  # TODO should this be Outbound?
+  # See https://docs.microsoft.com/en-us/azure/active-directory-domain-services/network-considerations#outbound-connectivity
   security_rule {
     name                       = "AllowSyncWithAzureAD"
     priority                   = 101
@@ -69,6 +73,7 @@ resource "azurerm_network_security_group" "aadds" {
     destination_address_prefix = "*"
   }
 
+  # See https://docs.microsoft.com/en-us/azure/active-directory-domain-services/alert-nsg#inbound-security-rules
   security_rule {
     name                       = "AllowRD"
     priority                   = 201
@@ -93,6 +98,8 @@ resource "azurerm_network_security_group" "aadds" {
     destination_address_prefix = "*"
   }
 
+  # See https://docs.microsoft.com/en-us/azure/active-directory-domain-services/alert-ldaps#resolution
+  # See https://docs.microsoft.com/en-us/azure/active-directory-domain-services/tutorial-configure-ldaps#lock-down-secure-ldap-access-over-the-internet
   security_rule {
     name                       = "AllowLDAPS"
     priority                   = 401
