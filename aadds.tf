@@ -12,7 +12,7 @@ resource "azurerm_resource_provider_registration" "aadds" {
 resource "azuread_group" "dc_admins" {
   display_name     = "AAD DC Administrators"
   description      = "AADDS Administrators"
-  members          = [azuread_user.dc_admin]
+  members          = [azuread_user.dc_admin.object_id]
   security_enabled = true
 }
 
