@@ -16,3 +16,8 @@ variable "location" {
   type        = string
   description = "Azure region for deployments."
 }
+
+variable "domain_name" {
+  type        = string
+  description = "Active Directory domain to use."
+}

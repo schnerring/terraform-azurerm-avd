@@ -10,7 +10,7 @@ resource "azurerm_resource_provider_registration" "aadds" {
 # AADDS DC Admin Group and User
 
 resource "azuread_group" "dc_admins" {
-  name             = "AAD DC Administrators"
+  display_name     = "AAD DC Administrators"
   description      = "AADDS Administrators"
   members          = [azuread_user.dc_admin]
   security_enabled = true
@@ -23,7 +23,7 @@ resource "random_password" "dc_admin" {
 resource "azuread_user" "dc_admin" {
   user_principal_name = var.dc_admin_upn
   display_name        = "AADDS DC Administrator"
-  password            = random_password.aadds_admin.result
+  password            = random_password.dc_admin.result
 }
 
 # Resource Group
@@ -109,4 +109,37 @@ resource "azurerm_network_security_group" "aadds" {
 resource "azurerm_subnet_network_security_group_association" "aadds" {
   subnet_id                 = azurerm_subnet.aadds.id
   network_security_group_id = azurerm_network_security_group.aadds.id
+}
+
+# AADDS Managed Domain
+
+resource "azurerm_active_directory_domain_service" "aadds" {
+  name                = "aadds"
+  location            = azurerm_resource_group.aadds.location
+  resource_group_name = azurerm_resource_group.aadds.name
+
+  domain_name = var.domain_name
+  sku         = "Standard"
+
+  initial_replica_set {
+    subnet_id = azurerm_subnet.aadds.id
+  }
+
+  notifications {
+    additional_recipients = ["alice@example.com", "bob@example.com"]
+    notify_dc_admins      = true
+    notify_global_admins  = true
+  }
+
+  security {
+    sync_kerberos_passwords = true
+    sync_ntlm_passwords     = true
+    sync_on_prem_passwords  = true
+  }
+
+  depends_on = [
+    azuread_service_principal.aadds,
+    azurerm_resource_provider_registration.aadds,
+    azurerm_subnet_network_security_group_association.aadds,
+  ]
 }
