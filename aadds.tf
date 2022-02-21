@@ -59,20 +59,7 @@ resource "azurerm_network_security_group" "aadds" {
   location            = azurerm_resource_group.aadds.location
   resource_group_name = azurerm_resource_group.aadds.name
 
-  # TODO should this be Outbound?
-  # See https://docs.microsoft.com/en-us/azure/active-directory-domain-services/network-considerations#outbound-connectivity
-  security_rule {
-    name                       = "AllowSyncWithAzureAD"
-    priority                   = 101
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "443"
-    source_address_prefix      = "AzureActiveDirectoryDomainServices"
-    destination_address_prefix = "*"
-  }
-
+  # Allow the Azure platform to monitor, manage, and update the managed domain
   # See https://docs.microsoft.com/en-us/azure/active-directory-domain-services/alert-nsg#inbound-security-rules
   security_rule {
     name                       = "AllowRD"
@@ -98,19 +85,20 @@ resource "azurerm_network_security_group" "aadds" {
     destination_address_prefix = "*"
   }
 
+  # Restrict inbound LDAPS access to specific IP addresses to protect the managed domain from brute force attacks.
   # See https://docs.microsoft.com/en-us/azure/active-directory-domain-services/alert-ldaps#resolution
   # See https://docs.microsoft.com/en-us/azure/active-directory-domain-services/tutorial-configure-ldaps#lock-down-secure-ldap-access-over-the-internet
-  security_rule {
-    name                       = "AllowLDAPS"
-    priority                   = 401
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "636"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
+  # security_rule {
+  #   name                       = "AllowLDAPS"
+  #   priority                   = 401
+  #   direction                  = "Inbound"
+  #   access                     = "Allow"
+  #   protocol                   = "Tcp"
+  #   source_port_range          = "*"
+  #   destination_port_range     = "636"
+  #   source_address_prefix      = "<Authorized LDAPS IPs>"
+  #   destination_address_prefix = "*"
+  # }
 }
 
 resource "azurerm_subnet_network_security_group_association" "aadds" {
