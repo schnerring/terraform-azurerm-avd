@@ -134,3 +134,40 @@ resource "azurerm_windows_virtual_machine" "avd" {
     version   = "latest"
   }
 }
+
+# AADDS Domain-join
+
+resource "azurerm_virtual_machine_extension" "avd_aadds_domain_join" {
+  count                      = length(azurerm_windows_virtual_machine.avd)
+  name                       = "aadds-domain-join-vmext"
+  virtual_machine_id         = azurerm_windows_virtual_machine.avd[count.index].id
+  publisher                  = "Microsoft.Compute"
+  type                       = "JsonADDomainExtension"
+  type_handler_version       = "1.3"
+  auto_upgrade_minor_version = true
+
+  settings = <<-SETTINGS
+    {
+      "Name": "${azurerm_active_directory_domain_service.aadds.domain_name}",
+      "OUPath": "${join(",", formatlist("DC=%s", split(".", azurerm_active_directory_domain_service.aadds.domain_name)))}",
+      "User": "${azuread_user.dc_admin.user_principal_name}",
+      "Restart": "true",
+      "Options": "3"
+    }
+    SETTINGS
+
+  protected_settings = <<-PROTECTED_SETTINGS
+    {
+      "Password": "${random_password.dc_admin.result}"
+    }
+    PROTECTED_SETTINGS
+
+  lifecycle {
+    ignore_changes = [settings, protected_settings]
+  }
+
+  depends_on = [
+    azurerm_virtual_network_peering.aadds_to_avd,
+    azurerm_virtual_network_peering.avd_to_aadds
+  ]
+}
