@@ -89,3 +89,48 @@ resource "azurerm_virtual_desktop_workspace_application_group_association" "avd"
   workspace_id         = azurerm_virtual_desktop_workspace.avd.id
   application_group_id = azurerm_virtual_desktop_application_group.avd.id
 }
+
+# Session Host VMs
+
+resource "azurerm_network_interface" "avd" {
+  count               = var.avd_host_pool_size
+  name                = "avd-nic-${count.index}"
+  location            = azurerm_resource_group.avd.location
+  resource_group_name = azurerm_resource_group.avd.name
+
+  ip_configuration {
+    name                          = "avd-ipconf-${count.index}"
+    subnet_id                     = azurerm_subnet.avd.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "random_password" "avd_local_admin" {
+  length = 64
+}
+
+resource "azurerm_windows_virtual_machine" "avd" {
+  count               = length(azurerm_network_interface.avd)
+  name                = "avd-vm-${count.index}"
+  location            = azurerm_resource_group.avd.location
+  resource_group_name = azurerm_resource_group.avd.name
+
+  size                  = "Standard_D4s_v5"
+  license_type          = "Windows_Client" # https://docs.microsoft.com/en-us/azure/virtual-machines/windows/windows-desktop-multitenant-hosting-deployment#verify-your-vm-is-utilizing-the-licensing-benefit
+  admin_username        = "avd-local-admin"
+  admin_password        = random_password.avd_local_admin.result
+  network_interface_ids = [azurerm_network_interface.avd[count.index].id]
+
+  os_disk {
+    name                 = "avd-osdisk-${count.index}"
+    caching              = "ReadWrite"
+    storage_account_type = "Premium_LRS"
+  }
+
+  source_image_reference {
+    publisher = "MicrosoftWindowsDesktop"
+    offer     = "windows-11"
+    sku       = "win11-21h2-avd"
+    version   = "latest"
+  }
+}

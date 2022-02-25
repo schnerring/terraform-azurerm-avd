@@ -21,3 +21,8 @@ variable "domain_name" {
   type        = string
   description = "Active Directory domain to use."
 }
+
+variable "avd_host_pool_size" {
+  type        = number
+  description = "Number of sessions hosts to add to the AVD host pool."
+}
