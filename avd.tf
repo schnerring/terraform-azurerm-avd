@@ -207,3 +207,28 @@ resource "azurerm_virtual_machine_extension" "avd_add_session_host" {
 
   depends_on = [azurerm_virtual_machine_extension.avd_aadds_domain_join]
 }
+
+# FSLogix Profile Storage
+
+resource "random_id" "random" {
+  byte_length = 2
+}
+
+resource "azurerm_storage_account" "avd_fslogix" {
+  name                = "fslogix${random_id.random.dec}"
+  location            = azurerm_resource_group.avd.location
+  resource_group_name = azurerm_resource_group.avd.name
+
+  account_kind             = "FileStorage"
+  account_tier             = "Premium"
+  account_replication_type = "LRS"
+
+  azure_files_authentication {
+    directory_type = "AADDS"
+  }
+}
+
+resource "azurerm_storage_share" "avd_fslogix" {
+  name                 = "profiles"
+  storage_account_name = azurerm_storage_account.avd_fslogix.name
+}
