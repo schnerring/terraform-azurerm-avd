@@ -47,7 +47,7 @@ locals {
 }
 
 resource "azurerm_virtual_desktop_host_pool" "avd" {
-  name                = "vis-avd-hp"
+  name                = "avd-hp"
   location            = local.avd_location
   resource_group_name = azurerm_resource_group.avd.name
 
@@ -65,4 +65,27 @@ resource "time_rotating" "avd_registration_expiration" {
 resource "azurerm_virtual_desktop_host_pool_registration_info" "avd" {
   hostpool_id     = azurerm_virtual_desktop_host_pool.avd.id
   expiration_date = time_rotating.avd_registration_expiration.rotation_rfc3339
+}
+
+# Workspace and App Group
+
+resource "azurerm_virtual_desktop_workspace" "avd" {
+  name                = "avd-ws"
+  location            = local.avd_location
+  resource_group_name = azurerm_resource_group.avd.name
+}
+
+resource "azurerm_virtual_desktop_application_group" "avd" {
+  name                = "desktop-ag"
+  location            = local.avd_location
+  resource_group_name = azurerm_resource_group.avd.name
+
+  type          = "Desktop"
+  host_pool_id  = azurerm_virtual_desktop_host_pool.avd.id
+  friendly_name = "Full Desktop"
+}
+
+resource "azurerm_virtual_desktop_workspace_application_group_association" "avd" {
+  workspace_id         = azurerm_virtual_desktop_workspace.avd.id
+  application_group_id = azurerm_virtual_desktop_application_group.avd.id
 }
