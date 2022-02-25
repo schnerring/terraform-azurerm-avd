@@ -171,3 +171,39 @@ resource "azurerm_virtual_machine_extension" "avd_aadds_domain_join" {
     azurerm_virtual_network_peering.avd_to_aadds
   ]
 }
+
+# Register to Host Pool
+
+resource "azurerm_virtual_machine_extension" "avd_add_session_host" {
+  count                = length(azurerm_windows_virtual_machine.avd)
+  name                 = "add-session-host-vmext"
+  virtual_machine_id   = azurerm_windows_virtual_machine.avd[count.index].id
+  publisher            = "Microsoft.Powershell"
+  type                 = "DSC"
+  type_handler_version = "2.73"
+
+  settings = <<-SETTINGS
+    {
+      "modulesUrl": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_3-10-2021.zip",
+      "configurationFunction": "Configuration.ps1\\AddSessionHost",
+      "properties": {
+        "hostPoolName": "${azurerm_virtual_desktop_host_pool.avd.name}",
+        "aadJoin": false
+      }
+    }
+    SETTINGS
+
+  protected_settings = <<-PROTECTED_SETTINGS
+    {
+      "properties": {
+        "registrationInfoToken": "${azurerm_virtual_desktop_host_pool_registration_info.avd.token}"
+      }
+    }
+    PROTECTED_SETTINGS
+
+  lifecycle {
+    ignore_changes = [settings, protected_settings]
+  }
+
+  depends_on = [azurerm_virtual_machine_extension.avd_aadds_domain_join]
+}

@@ -24,5 +24,5 @@ variable "domain_name" {
 
 variable "avd_host_pool_size" {
   type        = number
-  description = "Number of sessions hosts to add to the AVD host pool."
+  description = "Number of session hosts to add to the AVD host pool."
 }
