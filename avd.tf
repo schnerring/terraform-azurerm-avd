@@ -137,9 +137,9 @@ resource "azurerm_windows_virtual_machine" "avd" {
 
 # AADDS Domain-join
 
-resource "azurerm_virtual_machine_extension" "avd_aadds_domain_join" {
+resource "azurerm_virtual_machine_extension" "avd_aadds_join" {
   count                      = length(azurerm_windows_virtual_machine.avd)
-  name                       = "aadds-domain-join-vmext"
+  name                       = "aadds-join-vmext"
   virtual_machine_id         = azurerm_windows_virtual_machine.avd[count.index].id
   publisher                  = "Microsoft.Compute"
   type                       = "JsonADDomainExtension"
@@ -174,9 +174,9 @@ resource "azurerm_virtual_machine_extension" "avd_aadds_domain_join" {
 
 # Register to Host Pool
 
-resource "azurerm_virtual_machine_extension" "avd_add_session_host" {
+resource "azurerm_virtual_machine_extension" "avd_register_session_host" {
   count                = length(azurerm_windows_virtual_machine.avd)
-  name                 = "add-session-host-vmext"
+  name                 = "register-session-host-vmext"
   virtual_machine_id   = azurerm_windows_virtual_machine.avd[count.index].id
   publisher            = "Microsoft.Powershell"
   type                 = "DSC"
@@ -205,30 +205,21 @@ resource "azurerm_virtual_machine_extension" "avd_add_session_host" {
     ignore_changes = [settings, protected_settings]
   }
 
-  depends_on = [azurerm_virtual_machine_extension.avd_aadds_domain_join]
+  depends_on = [azurerm_virtual_machine_extension.avd_aadds_join]
 }
 
-# FSLogix Profile Storage
+# Auto-shutdown
 
-resource "random_id" "random" {
-  byte_length = 2
-}
+resource "azurerm_dev_test_global_vm_shutdown_schedule" "avd" {
+  count              = length(azurerm_windows_virtual_machine.avd)
+  virtual_machine_id = azurerm_windows_virtual_machine.avd[count.index].id
+  location           = azurerm_resource_group.avd.location
+  enabled            = true
 
-resource "azurerm_storage_account" "avd_fslogix" {
-  name                = "fslogix${random_id.random.dec}"
-  location            = azurerm_resource_group.avd.location
-  resource_group_name = azurerm_resource_group.avd.name
+  daily_recurrence_time = "2300"
+  timezone              = "W. Europe Standard Time"
 
-  account_kind             = "FileStorage"
-  account_tier             = "Premium"
-  account_replication_type = "LRS"
-
-  azure_files_authentication {
-    directory_type = "AADDS"
+  notification_settings {
+    enabled = false
   }
-}
-
-resource "azurerm_storage_share" "avd_fslogix" {
-  name                 = "profiles"
-  storage_account_name = azurerm_storage_account.avd_fslogix.name
 }
