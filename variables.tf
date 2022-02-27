@@ -26,3 +26,13 @@ variable "avd_host_pool_size" {
   type        = number
   description = "Number of session hosts to add to the AVD host pool."
 }
+
+variable "avd_add_session_host_dsc_modules_url" {
+  type        = string
+  description = "URL to .zip file containing DSC configuration to register AVD session hosts to AVD host pool."
+  # Get list of releases used by Azure Portal
+  # https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts?restype=container&comp=list&prefix=Configuration
+  # Development version from master branch
+  # https://raw.githubusercontent.com/Azure/RDS-Templates/master/ARM-wvd-templates/DSC/Configuration.zip
+  default = "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_02-23-2022.zip"
+}
