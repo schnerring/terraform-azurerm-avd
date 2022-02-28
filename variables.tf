@@ -42,3 +42,9 @@ variable "avd_register_session_host_dsc_modules_url" {
   # https://raw.githubusercontent.com/Azure/RDS-Templates/master/ARM-wvd-templates/DSC/Configuration.zip
   default = "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_02-23-2022.zip"
 }
+
+variable "avd_user_upns" {
+  type        = list(string)
+  description = "List of user UPNs authorized to access AVD."
+  default     = []
+}

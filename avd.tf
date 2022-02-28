@@ -227,3 +227,31 @@ resource "azurerm_dev_test_global_vm_shutdown_schedule" "avd" {
     enabled = false
   }
 }
+
+# Role-based Access Control
+
+data "azurerm_role_definition" "desktop_virtualization_user" {
+  name = "Desktop Virtualization User"
+}
+
+resource "azuread_group" "avd_users" {
+  display_name     = "AVD Users"
+  security_enabled = true
+}
+
+resource "azurerm_role_assignment" "avd_users_desktop_virtualization_user" {
+  scope              = azurerm_virtual_desktop_application_group.avd.id
+  role_definition_id = data.azurerm_role_definition.desktop_virtualization_user.id
+  principal_id       = azuread_group.avd_users.id
+}
+
+data "azuread_user" "avd_users" {
+  for_each            = toset(var.avd_user_upns)
+  user_principal_name = each.key
+}
+
+resource "azuread_group_member" "avd_users" {
+  for_each         = data.azuread_user.avd_users
+  group_object_id  = azuread_group.avd_users.id
+  member_object_id = each.value.id
+}
