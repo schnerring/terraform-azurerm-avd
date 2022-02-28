@@ -51,10 +51,9 @@ resource "azurerm_virtual_desktop_host_pool" "avd" {
   location            = local.avd_location
   resource_group_name = azurerm_resource_group.avd.name
 
-  type                = "Pooled"
-  load_balancer_type  = "BreadthFirst"
-  friendly_name       = "AVD Host Pool using AADDS"
-  start_vm_on_connect = true
+  type               = "Pooled"
+  load_balancer_type = "BreadthFirst"
+  friendly_name      = "AVD Host Pool using AADDS"
 }
 
 resource "time_rotating" "avd_registration_expiration" {
@@ -209,22 +208,6 @@ resource "azurerm_virtual_machine_extension" "avd_register_session_host" {
   }
 
   depends_on = [azurerm_virtual_machine_extension.avd_aadds_join]
-}
-
-# Auto-shutdown
-
-resource "azurerm_dev_test_global_vm_shutdown_schedule" "avd" {
-  count              = length(azurerm_windows_virtual_machine.avd)
-  virtual_machine_id = azurerm_windows_virtual_machine.avd[count.index].id
-  location           = azurerm_resource_group.avd.location
-  enabled            = true
-
-  daily_recurrence_time = "2300"
-  timezone              = "W. Europe Standard Time"
-
-  notification_settings {
-    enabled = false
-  }
 }
 
 # Role-based Access Control
