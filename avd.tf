@@ -80,9 +80,8 @@ resource "azurerm_virtual_desktop_application_group" "avd" {
   location            = local.avd_location
   resource_group_name = azurerm_resource_group.avd.name
 
-  type          = "Desktop"
-  host_pool_id  = azurerm_virtual_desktop_host_pool.avd.id
-  friendly_name = "Full Desktop"
+  type         = "Desktop"
+  host_pool_id = azurerm_virtual_desktop_host_pool.avd.id
 }
 
 resource "azurerm_virtual_desktop_workspace_application_group_association" "avd" {
