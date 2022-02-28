@@ -99,7 +99,7 @@ resource "azurerm_network_interface" "avd" {
   resource_group_name = azurerm_resource_group.avd.name
 
   ip_configuration {
-    name                          = "avd-ipconf-${count.index}"
+    name                          = "avd-ipconf"
     subnet_id                     = azurerm_subnet.avd.id
     private_ip_address_allocation = "Dynamic"
   }
@@ -109,20 +109,24 @@ resource "random_password" "avd_local_admin" {
   length = 64
 }
 
+resource "random_id" "avd" {
+  count       = length(azurerm_network_interface.avd)
+  byte_length = 2
+}
+
 resource "azurerm_windows_virtual_machine" "avd" {
-  count               = length(azurerm_network_interface.avd)
-  name                = "avd-vm-${count.index}"
+  count               = length(random_id.avd)
+  name                = "avd-vm-${count.index}-${random_id.avd[count.index].hex}"
   location            = azurerm_resource_group.avd.location
   resource_group_name = azurerm_resource_group.avd.name
 
-  size                  = "Standard_D4s_v5"
+  size                  = "Standard_D4s_v4"
   license_type          = "Windows_Client" # https://docs.microsoft.com/en-us/azure/virtual-machines/windows/windows-desktop-multitenant-hosting-deployment#verify-your-vm-is-utilizing-the-licensing-benefit
   admin_username        = "avd-local-admin"
   admin_password        = random_password.avd_local_admin.result
   network_interface_ids = [azurerm_network_interface.avd[count.index].id]
 
   os_disk {
-    name                 = "avd-osdisk-${count.index}"
     caching              = "ReadWrite"
     storage_account_type = "Premium_LRS"
   }
@@ -149,7 +153,7 @@ resource "azurerm_virtual_machine_extension" "avd_aadds_join" {
   settings = <<-SETTINGS
     {
       "Name": "${azurerm_active_directory_domain_service.aadds.domain_name}",
-      "OUPath": "${join(",", formatlist("DC=%s", split(".", azurerm_active_directory_domain_service.aadds.domain_name)))}",
+      "OUPath": "${var.avd_ou_path}",
       "User": "${azuread_user.dc_admin.user_principal_name}",
       "Restart": "true",
       "Options": "3"
@@ -184,7 +188,7 @@ resource "azurerm_virtual_machine_extension" "avd_register_session_host" {
 
   settings = <<-SETTINGS
     {
-      "modulesUrl": "${var.avd_add_session_host_dsc_modules_url}",
+      "modulesUrl": "${var.avd_register_session_host_dsc_modules_url}",
       "configurationFunction": "Configuration.ps1\\AddSessionHost",
       "properties": {
         "hostPoolName": "${azurerm_virtual_desktop_host_pool.avd.name}",
