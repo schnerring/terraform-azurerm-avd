@@ -47,7 +47,7 @@ locals {
 }
 
 resource "azurerm_virtual_desktop_host_pool" "avd" {
-  name                = "avd-hp"
+  name                = "avd-vdpool"
   location            = local.avd_location
   resource_group_name = azurerm_resource_group.avd.name
 
@@ -69,13 +69,13 @@ resource "azurerm_virtual_desktop_host_pool_registration_info" "avd" {
 # Workspace and App Group
 
 resource "azurerm_virtual_desktop_workspace" "avd" {
-  name                = "avd-ws"
+  name                = "avd-vdws"
   location            = local.avd_location
   resource_group_name = azurerm_resource_group.avd.name
 }
 
 resource "azurerm_virtual_desktop_application_group" "avd" {
-  name                = "desktop-ag"
+  name                = "desktop-vdag"
   location            = local.avd_location
   resource_group_name = azurerm_resource_group.avd.name
 
