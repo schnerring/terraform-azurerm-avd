@@ -112,6 +112,13 @@ resource "random_id" "avd" {
   byte_length = 2
 }
 
+# Custom Managed Image
+# https://github.com/schnerring/packer-windows-avd
+data "azurerm_image" "win11" {
+  name                = "win11-21h2-avd-m365-22000.556.220308"
+  resource_group_name = "packer-artifacts-rg"
+}
+
 resource "azurerm_windows_virtual_machine" "avd" {
   count               = length(random_id.avd)
   name                = "avd-vm-${count.index}-${random_id.avd[count.index].hex}"
@@ -129,12 +136,16 @@ resource "azurerm_windows_virtual_machine" "avd" {
     storage_account_type = "Premium_LRS"
   }
 
-  source_image_reference {
-    publisher = "MicrosoftWindowsDesktop"
-    offer     = "windows-11"
-    sku       = "win11-21h2-avd"
-    version   = "latest"
-  }
+  # Custom Managed Image
+  source_image_id = data.azurerm_image.win11.id
+
+  # Official Microsoft Default Image
+  #source_image_reference {
+  #  publisher = "MicrosoftWindowsDesktop"
+  #  offer     = "windows-11"
+  #  sku       = "win11-21h2-avd"
+  #  version   = "latest"
+  #}
 }
 
 # AADDS Domain-join
