@@ -2,6 +2,11 @@
 
 Terraform sample containing Azure Active Directory Domain Services (AADDS) and Azure Virtual Desktop (AVD) deployments.
 
+Read about the thoughts going into this on my blog:
+
+- [Set Up Azure Active Directory Domain Services (AADDS) With Terraform](https://schnerring.net/blog/set-up-azure-active-directory-domain-services-aadds-with-terraform-updated/)
+- [Deploy Azure Virtual Desktop (AVD) Using Terraform and Azure Active Directory Domain Services (AADDS)](https://schnerring.net/blog/deploy-azure-virtual-desktop-avd-using-terraform-and-azure-active-directory-domain-services-aadds/)
+
 ## Prerequisites
 
 - Active Azure subscription
