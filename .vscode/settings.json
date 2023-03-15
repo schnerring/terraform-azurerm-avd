@@ -5,9 +5,12 @@
     "editor.defaultFormatter": "ms-vscode.powershell"
   },
   "[terraform]": {
-    "editor.defaultFormatter": "hashicorp.terraform"
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.formatOnSaveMode": "file"
   },
-  "terraform-ls.experimentalFeatures": {
-    "validateOnSave": true
-  }
+  "[terraform-vars]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.formatOnSaveMode": "file"
+  },
+  "terraform.experimentalFeatures.validateOnSave": true
 }
