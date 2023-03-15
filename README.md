@@ -1,4 +1,4 @@
-# aadds-wvd-terraform
+# terraform-azurerm-avd
 
 Terraform sample containing Azure Active Directory Domain Services (AADDS) and Azure Virtual Desktop (AVD) deployments.
 
