@@ -115,7 +115,7 @@ resource "random_id" "avd" {
 # Custom Managed Image
 # https://github.com/schnerring/packer-windows-avd
 data "azurerm_image" "win11" {
-  name                = "win11-21h2-avd-m365-22000.556.220308"
+  name                = "win11-21h2-avd-m365-22000.1455.230110"
   resource_group_name = "packer-artifacts-rg"
 }
 
