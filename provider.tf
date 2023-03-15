@@ -1,25 +1,25 @@
 terraform {
-  required_version = ">= 1.1.6"
+  required_version = ">= 1.4.0"
 
   required_providers {
     azuread = {
       source  = "azuread"
-      version = ">= 2.18.0"
+      version = "~> 2.36.0"
     }
 
     azurerm = {
       source  = "azurerm"
-      version = ">= 2.98.0"
+      version = "~> 3.47.0"
     }
 
     random = {
       source  = "random"
-      version = ">= 3.1.0"
+      version = "~> 3.4.0"
     }
 
     time = {
       source  = "time"
-      version = ">= 0.7.2"
+      version = "~> 0.9.1"
     }
   }
 }
